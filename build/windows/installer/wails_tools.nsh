@@ -8,16 +8,16 @@
     !define INFO_PROJECTNAME "ModMaster"
 !endif
 !ifndef INFO_COMPANYNAME
-    !define INFO_COMPANYNAME "ModMaster"
+    !define INFO_COMPANYNAME "XingGao"
 !endif
 !ifndef INFO_PRODUCTNAME
     !define INFO_PRODUCTNAME "ModMaster"
 !endif
 !ifndef INFO_PRODUCTVERSION
-    !define INFO_PRODUCTVERSION "1.0.0"
+    !define INFO_PRODUCTVERSION "1.1.3"
 !endif
 !ifndef INFO_COPYRIGHT
-    !define INFO_COPYRIGHT "Copyright........."
+    !define INFO_COPYRIGHT "Copyright xinggao © 2024"
 !endif
 !ifndef PRODUCT_EXECUTABLE
     !define PRODUCT_EXECUTABLE "${INFO_PROJECTNAME}.exe"
