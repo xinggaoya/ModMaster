@@ -4,25 +4,30 @@
       <template v-slot:default>
         <div style="margin-bottom: 20px">
           <n-input-group>
-            <n-input v-model:value="gameName"/>
+            <n-input v-model:value="gameName" placeholder="输入游戏名称" @keydown.enter="onSearch"/>
             <n-button type="primary" @click="onSearch">搜 索</n-button>
           </n-input-group>
         </div>
         <div>
           <h3>搜索列表</h3>
         </div>
-        <n-scrollbar style="height: 400px">
-          <n-space vertical>
-            <n-card v-for="(item,index) in gameList" :key="index" header-style="padding: 0 20px">
-              <template #header>
-                <div class="text-sm opacity-75">{{ item.name }}</div>
-              </template>
-              <template #header-extra>
-                <n-button type="tertiary" @click="downloadGame(item.url)">下载</n-button>
-              </template>
-            </n-card>
-          </n-space>
-        </n-scrollbar>
+        <n-spin :show="searchGameLoading" description="加载中...">
+          <n-scrollbar style="height: 400px">
+            <n-space vertical>
+              <n-card v-for="(item,index) in gameList" :key="index" header-style="padding: 0 20px">
+                <template #header>
+                  <n-space>
+                    <n-image :src="item.img" width="60" height="60" fit="fit"/>
+                    <n-ellipsis style="max-width: 360px">{{ item.name }}</n-ellipsis>
+                  </n-space>
+                </template>
+                <template #header-extra>
+                  <n-button type="tertiary" @click="downloadGame(item.url)">下载</n-button>
+                </template>
+              </n-card>
+            </n-space>
+          </n-scrollbar>
+        </n-spin>
       </template>
     </n-modal>
     <n-spin :show="loading" description="加载中...">
@@ -63,13 +68,16 @@ import {useMessage} from "naive-ui";
 const message = useMessage()
 const gameName = ref('')
 const showModel = ref(false)
+const searchGameLoading = ref(false)
 const loading = ref(false)
 const gameList = ref<any>([])
 const localGame = ref<any>([])
 
 // 搜索游戏
 async function onSearch() {
+  searchGameLoading.value = true
   gameList.value = await GetGameList(gameName.value)
+  searchGameLoading.value = false
 }
 
 // 打开下载弹出框
@@ -78,19 +86,21 @@ function onShowModel() {
   gameList.value = []
   showModel.value = true
 }
+
 // 获取本地游戏
 async function getLocalGame() {
   loading.value = true
   localGame.value = await GetGame()
   loading.value = false
-  console.log(localGame.value)
 }
+
 // 运行游戏
 async function runTheGame(path: string) {
   RunGame(path).finally(() => {
     message.warning('停止运行')
   })
 }
+
 // 删除游戏
 async function deleteGame(path: string) {
   DeleteGame(path).finally(() => {
@@ -98,6 +108,7 @@ async function deleteGame(path: string) {
     message.success('删除成功')
   })
 }
+
 // 下载游戏
 async function downloadGame(url: string) {
   GetGameInfo(url).finally(() => {

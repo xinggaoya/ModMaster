@@ -11,7 +11,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 )
 
 // App struct
@@ -33,6 +32,7 @@ func (a *App) startup(ctx context.Context) {
 type GameInfo struct {
 	Name string `json:"name"`
 	Url  string `json:"url"`
+	Img  string `json:"img"`
 }
 
 // GetGameList returns a greeting for the given name
@@ -41,16 +41,16 @@ func (a *App) GetGameList(name string) []GameInfo {
 	c := colly.NewCollector()
 
 	var gameList []GameInfo
-	// 搜索出链接
-	c.OnHTML(".post-content h2 a", func(e *colly.HTMLElement) {
-		fmt.Printf("%s %s\n", e.Text, e.Attr("href"))
-		title := e.Text
-		// 正则title的空格字符转为下划线
-		title = strings.Replace(title, " ", "_", -1)
-		gameList = append(gameList, GameInfo{
-			Name: title,
-			Url:  e.Attr("href"),
+	c.OnHTML("article", func(e *colly.HTMLElement) {
+		var info GameInfo
+		e.ForEach(".post-content h2 a", func(i int, e *colly.HTMLElement) {
+			info.Name = e.Text
+			info.Url = e.Attr("href")
 		})
+		e.ForEach(".post-details .post-details-thumb a img", func(i int, e *colly.HTMLElement) {
+			info.Img = e.Attr("src")
+		})
+		gameList = append(gameList, info)
 	})
 	c.OnRequest(func(r *colly.Request) {
 		fmt.Println("Visiting", r.URL)
@@ -69,9 +69,6 @@ func (a *App) GetGameInfo(url string) GameInfo {
 			info.Url = e.Attr("href")
 			info.Name = e.Text
 		}
-	})
-	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL)
 	})
 	c.Visit(url)
 	DownloadGame(info)
