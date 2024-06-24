@@ -22,23 +22,24 @@
                   </n-space>
                 </template>
                 <template #header-extra>
-                  <n-button type="tertiary" @click="downloadGame(item.url)">下载</n-button>
+                  <n-button type="tertiary" @click="downloadGame(item.url,item.img)">下载</n-button>
                 </template>
               </n-card>
             </n-space>
           </n-scrollbar>
         </n-spin>
+
       </template>
     </n-modal>
-    <n-spin :show="loading" description="加载中...">
-      <n-space vertical>
-        <n-space justify="space-between">
-          <h3>本地游戏</h3>
-          <div>
-            <n-button type="primary" @click="onShowModel">添加游戏</n-button>
-            <n-button type="default" @click="getLocalGame">加载本地</n-button>
-          </div>
-        </n-space>
+    <n-space vertical>
+      <n-space justify="space-between">
+        <h3>本地游戏</h3>
+        <div>
+          <n-button type="primary" @click="onShowModel">添加游戏</n-button>
+          <n-button type="default" @click="getLocalGame">加载本地</n-button>
+        </div>
+      </n-space>
+      <n-spin :show="loading" description="加载中...">
         <n-card v-for="(item,index) in localGame" :key="index" hoverable>
           <template #header>
             <div class="text-sm opacity-75">{{ item.name }}</div>
@@ -55,14 +56,15 @@
             </n-space>
           </template>
         </n-card>
-      </n-space>
-    </n-spin>
+      </n-spin>
+
+    </n-space>
   </div>
 </template>
 
 <script lang="ts" setup>
 import {ref} from 'vue'
-import {DeleteGame, GetGame, GetGameInfo, GetGameList, RunGame} from "../../wailsjs/go/main/App";
+import {DeleteGame, GetGame, GetGameInfo, GetGameList, RunGame} from "~/go/internal/App";
 import {useMessage} from "naive-ui";
 
 const message = useMessage()
@@ -97,7 +99,7 @@ async function getLocalGame() {
 // 运行游戏
 async function runTheGame(path: string) {
   RunGame(path).finally(() => {
-    message.warning('停止运行')
+    message.warning('执行完成')
   })
 }
 
@@ -110,8 +112,8 @@ async function deleteGame(path: string) {
 }
 
 // 下载游戏
-async function downloadGame(url: string) {
-  GetGameInfo(url).finally(() => {
+async function downloadGame(url: string, img: string) {
+  GetGameInfo(url, img).finally(() => {
     getLocalGame()
     message.success('下载成功')
   })

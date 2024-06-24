@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
 import {ref} from 'vue'
-import {GetGameList} from "../../wailsjs/go/main/App";
+import {GetGameList} from "../../wailsjs/go/internal/App";
 
 const gameName = ref('')
 const gameList = ref<any>([])

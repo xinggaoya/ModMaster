@@ -1,4 +1,4 @@
-export namespace main {
+export namespace model {
 	
 	export class GameInfo {
 	    name: string;
@@ -16,12 +16,12 @@ export namespace main {
 	        this.img = source["img"];
 	    }
 	}
-	export class localGame {
+	export class LocalGame {
 	    name: string;
 	    path: string;
 	
 	    static createFrom(source: any = {}) {
-	        return new localGame(source);
+	        return new LocalGame(source);
 	    }
 	
 	    constructor(source: any = {}) {

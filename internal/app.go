@@ -1,6 +1,7 @@
-package main
+package internal
 
 import (
+	"ModMaster/internal/model"
 	"archive/zip"
 	"context"
 	"fmt"
@@ -23,26 +24,20 @@ func NewApp() *App {
 	return &App{}
 }
 
-// startup is called when the app starts. The context is saved
+// Startup is called when the app starts. The context is saved
 // so we can call the runtime methods
-func (a *App) startup(ctx context.Context) {
+func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-type GameInfo struct {
-	Name string `json:"name"`
-	Url  string `json:"url"`
-	Img  string `json:"img"`
-}
-
 // GetGameList returns a greeting for the given name
-func (a *App) GetGameList(name string) []GameInfo {
+func (a *App) GetGameList(name string) []model.GameInfo {
 	url := "https://flingtrainer.com/?s=" + name
 	c := colly.NewCollector()
 
-	var gameList []GameInfo
+	var gameList []model.GameInfo
 	c.OnHTML("article", func(e *colly.HTMLElement) {
-		var info GameInfo
+		var info model.GameInfo
 		e.ForEach(".post-content h2 a", func(i int, e *colly.HTMLElement) {
 			info.Name = e.Text
 			info.Url = e.Attr("href")
@@ -61,9 +56,9 @@ func (a *App) GetGameList(name string) []GameInfo {
 }
 
 // GetGameInfo 查询游戏详情
-func (a *App) GetGameInfo(url string) GameInfo {
+func (a *App) GetGameInfo(url string, img string) model.GameInfo {
 	c := colly.NewCollector()
-	var info GameInfo
+	var info model.GameInfo
 	c.OnHTML(".zip .attachment-title a", func(e *colly.HTMLElement) {
 		if info.Url == "" {
 			info.Url = e.Attr("href")
@@ -75,14 +70,9 @@ func (a *App) GetGameInfo(url string) GameInfo {
 	return info
 }
 
-type localGame struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
-}
-
 // GetGame 获取游戏列表
-func (a *App) GetGame() []localGame {
-	var gameList []localGame
+func (a *App) GetGame() []model.LocalGame {
+	var gameList []model.LocalGame
 	if err := filepath.Walk("./execute", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -90,8 +80,12 @@ func (a *App) GetGame() []localGame {
 		if info.IsDir() {
 			return nil
 		}
-		gameList = append(gameList, localGame{
-			Name: info.Name(),
+		fileName := info.Name()
+		if filepath.Ext(fileName) == ".exe" {
+			fileName = fileName[:len(fileName)-4]
+		}
+		gameList = append(gameList, model.LocalGame{
+			Name: fileName,
 			Path: path,
 		})
 		return nil
@@ -128,7 +122,7 @@ func (a *App) DeleteGame(path string) {
 }
 
 // DownloadGame 根据url下载游戏
-func DownloadGame(info GameInfo) {
+func DownloadGame(info model.GameInfo) {
 	res, err := http.Get(info.Url)
 	if err != nil {
 		fmt.Println(err)
