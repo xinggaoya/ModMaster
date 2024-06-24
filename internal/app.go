@@ -106,7 +106,7 @@ func (a *App) RunGame(path string) {
 	log.Printf("程序运行路径: %s", path)
 
 	// 运行游戏 路径加引号
-	cmd := exec.Command("cmd", "/c", path)
+	cmd := exec.Command(path)
 	err = cmd.Start()
 	if err != nil {
 		log.Printf("运行游戏失败: %v", err)
