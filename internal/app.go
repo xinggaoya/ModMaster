@@ -4,6 +4,7 @@ import (
 	"ModMaster/internal/model"
 	"archive/zip"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/gocolly/colly/v2"
 	"io"
@@ -222,4 +223,34 @@ func extractAndWriteFile(file *zip.File, dest string) error {
 
 	_, err = io.Copy(outFile, srcFile)
 	return err
+}
+
+// CheckUpdate 检查更新
+func CheckUpdate() {
+	url := "https://api.github.com/repos/xinggaoya/ModMaster/releases/latest"
+	res, err := http.Get(url)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode == 200 {
+		// 获取最新版本号
+		var data struct {
+			TagName string `json:"tag_name"`
+			Assets  []struct {
+				BrowserDownloadUrl string `json:"browser_download_url"`
+			} `json:"assets"`
+		}
+		err = json.NewDecoder(res.Body).Decode(&data)
+		if err != nil {
+			fmt.Println(err)
+		}
+		// 比较版本号
+		if data.TagName != "v1.0.0" {
+			fmt.Println("有新版本")
+		} else {
+			fmt.Println("已是最新版本")
+		}
+	}
 }
