@@ -1,14 +1,14 @@
 import {ref} from 'vue'
 import {defineStore} from 'pinia'
 
-interface GameInfo {
+export interface GameInfo {
     name: string,
-    url: string,
+    path: string,
     img: string,
 }
 
-export const useGameStore = defineStore('counter', () => {
-    const gameList = ref<GameInfo[]>()
+export const useGameStore = defineStore('GameStore', () => {
+    const gameList = ref<GameInfo[]>([])
 
     // 新增game
     function addGame(game: GameInfo) {
@@ -16,13 +16,17 @@ export const useGameStore = defineStore('counter', () => {
     }
 
     // 删除
-    function deleteGame(name: string) {
+    function deleteGame(path: string) {
         gameList.value?.forEach((item, index) => {
-            if (item.name === name) {
+            if (item.path === path) {
                 gameList.value?.splice(index, 1)
             }
         })
     }
 
     return {gameList, addGame, deleteGame}
+}, {
+    persist: {
+        storage: localStorage,
+    }
 })

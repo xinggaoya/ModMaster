@@ -56,8 +56,32 @@ func (a *App) GetGameList(name string) []model.GameInfo {
 	return gameList
 }
 
+// GetGameListPage 获取游戏分页列表
+func (a *App) GetGameListPage(page int) []model.GameInfo {
+	// https://flingtrainer.com/page/2/
+	url := "https://flingtrainer.com/page/" + fmt.Sprintf("%d", page)
+	var gameList []model.GameInfo
+	c := colly.NewCollector()
+	c.OnHTML("article", func(e *colly.HTMLElement) {
+		var info model.GameInfo
+		e.ForEach(".post-content h2 a", func(i int, e *colly.HTMLElement) {
+			info.Name = e.Text
+			info.Url = e.Attr("href")
+		})
+		e.ForEach(".post-details .post-details-thumb a img", func(i int, e *colly.HTMLElement) {
+			info.Img = e.Attr("src")
+		})
+		gameList = append(gameList, info)
+	})
+	c.OnRequest(func(r *colly.Request) {
+		fmt.Println("Visiting", r.URL)
+	})
+	c.Visit(url)
+	return gameList
+}
+
 // GetGameInfo 查询游戏详情
-func (a *App) GetGameInfo(url string, img string) model.GameInfo {
+func (a *App) GetGameInfo(url string, img string) model.LocalGame {
 	c := colly.NewCollector()
 	var info model.GameInfo
 	c.OnHTML(".zip .attachment-title a", func(e *colly.HTMLElement) {
@@ -67,33 +91,12 @@ func (a *App) GetGameInfo(url string, img string) model.GameInfo {
 		}
 	})
 	c.Visit(url)
-	DownloadGame(info)
-	return info
-}
-
-// GetGame 获取游戏列表
-func (a *App) GetGame() []model.LocalGame {
-	var gameList []model.LocalGame
-	if err := filepath.Walk("./execute", func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
-		fileName := info.Name()
-		if filepath.Ext(fileName) == ".exe" {
-			fileName = fileName[:len(fileName)-4]
-		}
-		gameList = append(gameList, model.LocalGame{
-			Name: fileName,
-			Path: path,
-		})
-		return nil
-	}); err != nil {
-		log.Printf("遍历文件夹失败: %v", err)
+	exePath := DownloadGame(info)
+	return model.LocalGame{
+		Img:  img,
+		Name: info.Name,
+		Path: exePath,
 	}
-	return gameList
 }
 
 // RunGame 运行游戏
@@ -123,7 +126,7 @@ func (a *App) DeleteGame(path string) {
 }
 
 // DownloadGame 根据url下载游戏
-func DownloadGame(info model.GameInfo) {
+func DownloadGame(info model.GameInfo) string {
 	res, err := http.Get(info.Url)
 	if err != nil {
 		fmt.Println(err)
@@ -149,18 +152,37 @@ func DownloadGame(info model.GameInfo) {
 
 	// 压缩包地址
 	zipPath := "./download/" + info.Name + ".zip"
-	// 解压
-	err = Unzip(zipPath, "./execute/")
+	// 解压路径
+	thePathToDecompressTheDecompression := "./execute/" + info.Name
+	err = Unzip(zipPath, thePathToDecompressTheDecompression)
 	if err != nil {
 		log.Printf("解压失败: %v", err)
 	}
 
 	defer func(name string) {
-		err = os.RemoveAll("download")
+		err = os.RemoveAll("./download")
 		if err != nil {
 			log.Printf("删除文件失败: %v", err)
 		}
 	}(zipPath)
+
+	var exePath string
+	// 获取该路径下解压出来的exe
+	filepath.Walk(thePathToDecompressTheDecompression, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			log.Printf("遍历文件夹失败: %v", err)
+		}
+		if info.IsDir() {
+			return nil
+		}
+		if filepath.Ext(path) == ".exe" {
+			// 获取路径
+			exePath = path
+		}
+		return nil
+	})
+
+	return exePath
 }
 
 // Unzip 解压ZIP文件到指定目录

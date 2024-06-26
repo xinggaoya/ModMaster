@@ -14,4 +14,5 @@ type GameInfo struct {
 type LocalGame struct {
 	Name string `json:"name"`
 	Path string `json:"path"`
+	Img  string `json:"img"`
 }

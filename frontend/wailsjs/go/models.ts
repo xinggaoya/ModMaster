@@ -19,6 +19,7 @@ export namespace model {
 	export class LocalGame {
 	    name: string;
 	    path: string;
+	    img: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new LocalGame(source);
@@ -28,6 +29,7 @@ export namespace model {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.name = source["name"];
 	        this.path = source["path"];
+	        this.img = source["img"];
 	    }
 	}
 
