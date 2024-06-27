@@ -1,5 +1,4 @@
 <template>
-
   <n-card>
     <n-tabs type="line" animated default-value="0">
       <n-tab-pane name="0" tab="我的修改器">

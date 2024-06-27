@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"ModMaster/internal/consts"
 	"ModMaster/internal/model"
 	"archive/zip"
 	"context"
@@ -29,6 +30,7 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
+	go CheckUpdate()
 }
 
 // GetGameList returns a greeting for the given name
@@ -58,7 +60,6 @@ func (a *App) GetGameList(name string) []model.GameInfo {
 
 // GetGameListPage 获取游戏分页列表
 func (a *App) GetGameListPage(page int) []model.GameInfo {
-	// https://flingtrainer.com/page/2/
 	url := "https://flingtrainer.com/page/" + fmt.Sprintf("%d", page)
 	var gameList []model.GameInfo
 	c := colly.NewCollector()
@@ -127,28 +128,12 @@ func (a *App) DeleteGame(path string) {
 
 // DownloadGame 根据url下载游戏
 func DownloadGame(info model.GameInfo) string {
-	res, err := http.Get(info.Url)
-	if err != nil {
-		fmt.Println(err)
-	}
-	defer res.Body.Close()
 
-	// 判断创建文件夹
-	if err := os.MkdirAll("./download", os.ModePerm); err != nil {
-		log.Printf("创建文件夹失败: %v", err)
-	}
-	// 保存文件
-	file, err := os.Create("./download/" + info.Name + ".zip")
-	defer func(file *os.File) {
-		err = file.Close()
-		if err != nil {
-			log.Printf("关闭文件失败: %v", err)
-		}
-	}(file)
+	err := DownloadFile(info.Url, "./download/"+info.Name+".zip")
 	if err != nil {
-		log.Printf("创建文件失败: %v", err)
+		log.Printf("下载失败: %v", err)
+		return ""
 	}
-	io.Copy(file, res.Body)
 
 	// 压缩包地址
 	zipPath := "./download/" + info.Name + ".zip"
@@ -266,13 +251,83 @@ func CheckUpdate() {
 		}
 		err = json.NewDecoder(res.Body).Decode(&data)
 		if err != nil {
-			fmt.Println(err)
+			log.Printf("解析json失败: %v", err)
+			return
 		}
 		// 比较版本号
-		if data.TagName != "v1.0.0" {
-			fmt.Println("有新版本")
+		if data.TagName != consts.AppVersion {
+			log.Printf("有新版本: %s", data.TagName)
+			// 下载新版本
+			err = DownloadFile(data.Assets[0].BrowserDownloadUrl, "./update.exe")
+			if err != nil {
+				log.Printf("下载新版本失败: %v", err)
+			}
+			// 运行新版本
+			cmd := exec.Command("./update.exe")
+			err = cmd.Start()
+			if err != nil {
+				log.Printf("运行新版本失败: %v", err)
+			}
 		} else {
-			fmt.Println("已是最新版本")
+			log.Printf("当前已是最新版本")
 		}
 	}
+}
+
+// DownloadFile 下载文件并显示进度条
+func DownloadFile(url string, filePath string) error {
+	// 创建请求
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return err
+	}
+
+	// 发送请求
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	// 获取文件大小
+	fileSize := resp.ContentLength
+
+	// 创建进度条
+	log.Printf("Downloading %s (%d bytes)\n", filePath, fileSize)
+	// 判断文件夹是否存在
+	if err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
+		log.Printf("创建文件夹失败: %v", err)
+	}
+	// 创建文件
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// 进度记录
+	var downloaded int64
+	for {
+		// 读取数据
+		buf := make([]byte, 1024)
+		n, err := resp.Body.Read(buf)
+		if err != nil && err != io.EOF {
+			return err
+		}
+		if n == 0 {
+			break
+		}
+
+		// 写入文件
+		_, err = file.Write(buf[:n])
+		if err != nil {
+			return err
+		}
+
+		// 更新进度
+		downloaded += int64(n)
+
+		log.Printf("Downloaded %d bytes (%.2f%%)\n", downloaded, float64(downloaded)/float64(fileSize)*100)
+	}
+	return nil
 }
