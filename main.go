@@ -18,6 +18,9 @@ import (
 //go:embed frontend/dist
 var assets embed.FS
 
+//go:embed build/appicon.png
+var icon []byte
+
 // main function serves as the application's entry point. It initializes the application, creates a window,
 // and starts a goroutine that emits a time-based event every second. It subsequently runs the application and
 // logs any error that might occur.
@@ -48,7 +51,7 @@ func main() {
 	// 'Mac' options tailor the window when running on macOS.
 	// 'BackgroundColour' is the background colour of the window.
 	// 'URL' is the URL that will be loaded into the webview.
-	app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
+	win := app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
 		Title:  "ModMaster",
 		Width:  1024,
 		Height: 768,
@@ -61,6 +64,18 @@ func main() {
 		URL:              "/",
 	})
 
+	// Create a new system tray
+	tray := app.NewSystemTray()
+	tray.SetLabel("ModMaster")
+
+	tray.SetIcon(icon)
+	tray.OnClick(func() {
+		if win.IsVisible() {
+			win.Hide()
+		} else {
+			win.Show()
+		}
+	})
 	// Create a goroutine that emits an event containing the current time every second.
 	// The frontend can listen to this event and update the UI accordingly.
 	go func() {
