@@ -36,7 +36,7 @@
 </template>
 
 <script lang="ts" setup>
-import {DeleteGame, RunGame} from "~/go/internal/App";
+import {App} from "~/ModMaster/internal/service/index";
 import {useMessage} from "naive-ui";
 import {useGameStore} from "@/stores/GameStore";
 import {CloseCircleOutline, GameControllerOutline} from "@vicons/ionicons5";
@@ -47,7 +47,7 @@ const gameStore = useGameStore()
 
 // 运行游戏
 function runTheGame(path: string) {
-  RunGame(path).finally(() => {
+  App.RunGame(path).finally(() => {
     message.warning('执行完成')
   }).catch(() => {
     message.error('执行失败')
@@ -56,7 +56,7 @@ function runTheGame(path: string) {
 
 // 删除游戏
 function deleteGame(path: string) {
-  DeleteGame(path).then(() => {
+  App.DeleteGame(path).then(() => {
     gameStore.deleteGame(path)
     message.success('删除成功')
   }).catch(() => {

@@ -1,0 +1,15 @@
+{
+	"fixed": {
+		"file_version": "0.1.0"
+	},
+	"info": {
+		"0000": {
+			"ProductVersion": "1.0.0",
+			"CompanyName": "Moncn",
+			"FileDescription": "ModMaster Master",
+			"LegalCopyright": "Copyright xinggao © 2024",
+			"ProductName": "ModMaster",
+			"Comments": "风灵月影、游戏修改器管理。"
+		}
+	}
+}

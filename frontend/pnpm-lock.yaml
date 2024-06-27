@@ -45,6 +45,9 @@ importers:
       '@vue/tsconfig':
         specifier: ^0.5.1
         version: 0.5.1
+      '@wailsio/runtime':
+        specifier: latest
+        version: 3.0.0-alpha.25
       eslint:
         specifier: ^8.57.0
         version: 8.57.0
@@ -756,6 +759,9 @@ packages:
   '@vue/tsconfig@0.5.1':
     resolution: {integrity: sha512-VcZK7MvpjuTPx2w6blwnwZAu5/LgBUtejFOi3pPGQFXQN5Ela03FUtd2Qtg4yWGGissVL0dr6Ro1LfOFh+PCuQ==}
 
+  '@wailsio/runtime@3.0.0-alpha.25':
+    resolution: {integrity: sha512-IVL5o2D+IojoEVZSuhWykRqIBfKLCv+YDe9aT/1jdh6z9rXVQJCwa8qMIFWJktKLTmvpdB+b7WH7p0SiDM1l+w==}
+
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -1354,6 +1360,11 @@ packages:
   nanoid@3.3.7:
     resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+
+  nanoid@5.0.7:
+    resolution: {integrity: sha512-oLxFY2gd2IqnjcYyOXD8XGCftpGtZP2AbHbOkthDkvRywH5ayNtPVy9YlOPcHckXzbLTCHpkb7FB+yuxKV13pQ==}
+    engines: {node: ^18 || >=20}
     hasBin: true
 
   natural-compare@1.4.0:
@@ -2578,6 +2589,10 @@ snapshots:
 
   '@vue/tsconfig@0.5.1': {}
 
+  '@wailsio/runtime@3.0.0-alpha.25':
+    dependencies:
+      nanoid: 5.0.7
+
   acorn-jsx@5.3.2(acorn@8.12.0):
     dependencies:
       acorn: 8.12.0
@@ -3184,6 +3199,8 @@ snapshots:
       vueuc: 0.4.58(vue@3.4.29(typescript@5.4.5))
 
   nanoid@3.3.7: {}
+
+  nanoid@5.0.7: {}
 
   natural-compare@1.4.0: {}
 

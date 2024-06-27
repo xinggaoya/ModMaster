@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
-import {GetGameInfo, GetGameListPage} from "~/go/internal/App";
+import {App} from "~/ModMaster/internal/service/index";
 import {DownloadOutline} from "@vicons/ionicons5";
 import {type GameInfo, useGameStore} from "@/stores/GameStore";
 import {useMessage} from "naive-ui";
@@ -46,7 +46,7 @@ const page = ref(1)
 // 获取分页列表
 function getList() {
   loading.value = true
-  GetGameListPage(page.value).then((data: any) => {
+  App.GetGameListPage(page.value).then((data: any) => {
     gameList.value = data
     loading.value = false
     marketScrollbar.value.scrollTo({
@@ -63,7 +63,7 @@ function nextPage() {
 
 // 下载游戏
 function downloadGame(url: string, img: string) {
-  GetGameInfo(url, img).then((info: GameInfo) => {
+  App.GetGameInfo(url, img).then((info: GameInfo) => {
     gameStore.addGame(info)
     message.success('下载成功')
   }).catch(() => {

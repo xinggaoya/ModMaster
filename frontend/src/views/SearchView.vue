@@ -30,7 +30,7 @@
 </template>
 <script setup lang="ts">
 import {ref} from "vue";
-import {GetGameInfo, GetGameList} from "~/go/internal/App";
+import {App} from "~/ModMaster/internal/service/index";
 import {useMessage} from "naive-ui";
 import type {GameInfo} from "@/stores/GameStore"
 import {useGameStore} from "@/stores/GameStore";
@@ -44,7 +44,7 @@ const gameStore = useGameStore()
 // 搜索游戏
 function onSearch() {
   searchGameLoading.value = true
-  GetGameList(gameName.value).then((res: any) => {
+  App.GetGameList(gameName.value).then((res: any) => {
     gameList.value = res
     searchGameLoading.value = false
   }).catch(() => {
@@ -54,7 +54,7 @@ function onSearch() {
 
 // 下载游戏
 function downloadGame(url: string, img: string) {
-  GetGameInfo(url, img).then((info: GameInfo) => {
+  App.GetGameInfo(url, img).then((info: GameInfo) => {
     gameStore.addGame(info)
     message.success('下载成功')
   }).catch(() => {

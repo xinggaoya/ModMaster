@@ -1,8 +1,2 @@
-build/bin
-node_modules
-frontend/dist
-frontend/auto-imports.d.ts
-frontend/components.d.ts
-download
-execute
-frontend/node_modules
+/bin/
+/frontend/node_modules
