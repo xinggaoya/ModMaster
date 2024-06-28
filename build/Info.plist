@@ -4,11 +4,11 @@
         <key>CFBundlePackageType</key>
         <string>APPL</string>
         <key>CFBundleName</key>
-        <string>My Product</string>
+        <string>ModMaster</string>
         <key>CFBundleExecutable</key>
-        <string>wails3-demo</string>
+        <string>ModMaster</string>
         <key>CFBundleIdentifier</key>
-        <string>com.wails.wails3-demo</string>
+        <string>com.wails.ModMaster</string>
         <key>CFBundleVersion</key>
         <string>0.1.0</string>
         <key>CFBundleGetInfoString</key>
@@ -22,6 +22,6 @@
         <key>NSHighResolutionCapable</key>
         <string>true</string>
         <key>NSHumanReadableCopyright</key>
-        <string>© now, My Company</string>
+        <string>© now, Moncn</string>
     </dict>
 </plist>
