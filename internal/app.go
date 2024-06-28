@@ -270,6 +270,7 @@ func CheckUpdate() {
 			if err != nil {
 				log.Printf("运行新版本失败: %v", err)
 			}
+			defer os.Exit(0)
 		} else {
 			log.Printf("当前已是最新版本")
 		}
