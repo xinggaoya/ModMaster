@@ -1,9 +1,0 @@
-/bin/
-/frontend/node_modules
-/frontend/auto-imports.d.ts
-/frontend/components.d.ts
-/execute/
-/download/
-/.task
-/frontend/bindings
-/wails.syso
