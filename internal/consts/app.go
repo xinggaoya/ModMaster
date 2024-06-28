@@ -7,5 +7,5 @@ package consts
 
 const (
 	AppName    = "ModMaster"
-	AppVersion = "v1.0.0"
+	AppVersion = "v1.0.1"
 )

@@ -50,9 +50,6 @@ func (a *App) GetGameList(name string) []model.GameInfo {
 		})
 		gameList = append(gameList, info)
 	})
-	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL)
-	})
 	c.Visit(url)
 
 	return gameList
@@ -128,15 +125,20 @@ func (a *App) DeleteGame(path string) {
 
 // DownloadGame 根据url下载游戏
 func DownloadGame(info model.GameInfo) string {
+	// 压缩包地址
+	zipPath := "./download/" + info.Name + ".zip"
 
-	err := DownloadFile(info.Url, "./download/"+info.Name+".zip")
+	// 判断文件夹存在
+	err := os.MkdirAll("./download", os.ModePerm)
+	if err != nil {
+		log.Printf("创建文件夹失败: %v", err)
+	}
+	err = DownloadFile(info.Url, zipPath)
 	if err != nil {
 		log.Printf("下载失败: %v", err)
 		return ""
 	}
 
-	// 压缩包地址
-	zipPath := "./download/" + info.Name + ".zip"
 	// 解压路径
 	thePathToDecompressTheDecompression := "./execute/" + info.Name
 	err = Unzip(zipPath, thePathToDecompressTheDecompression)
@@ -144,12 +146,12 @@ func DownloadGame(info model.GameInfo) string {
 		log.Printf("解压失败: %v", err)
 	}
 
-	defer func(name string) {
-		err = os.RemoveAll("./download")
-		if err != nil {
-			log.Printf("删除文件失败: %v", err)
-		}
-	}(zipPath)
+	//defer func(name string) {
+	//	err = os.RemoveAll("./download")
+	//	if err != nil {
+	//		log.Printf("删除文件失败: %v", err)
+	//	}
+	//}(zipPath)
 
 	var exePath string
 	// 获取该路径下解压出来的exe
@@ -276,12 +278,18 @@ func CheckUpdate() {
 
 // DownloadFile 下载文件并显示进度条
 func DownloadFile(url string, filePath string) error {
+	log.Printf("Downloading %s", url)
 	// 创建请求
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return err
 	}
 
+	// set cookie
+	req.Header.Set("Cookie", "ikgxPfc-S=hGER74M6uxkL9; oYZQOsHLcUbd=EXbUmG.oJ; QcGqsjwyzIVOhUJm=dftYO%5DRxpH; dzXSbtHy=peDNBPm")
+	// 模拟浏览器
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36")
+	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
 	// 发送请求
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -294,10 +302,6 @@ func DownloadFile(url string, filePath string) error {
 
 	// 创建进度条
 	log.Printf("Downloading %s (%d bytes)\n", filePath, fileSize)
-	// 判断文件夹是否存在
-	if err = os.MkdirAll(filepath.Dir(filePath), os.ModePerm); err != nil {
-		log.Printf("创建文件夹失败: %v", err)
-	}
 	// 创建文件
 	file, err := os.Create(filePath)
 	if err != nil {
